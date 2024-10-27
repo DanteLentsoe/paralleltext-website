@@ -1,153 +1,159 @@
-import { useEffect, useState } from 'react'
-import { Comparison, DiffHighlight, FormatType } from '@/types'
-import { Header } from '@/components/Header'
-import { Button } from '@/components/Button/Button'
-import { ArrowRightLeft, Save } from 'lucide-react'
-import { DiffViewer } from '@/components/DiffViewer'
-import { ComparisonHistory } from '@/components/ComparisonHistory'
-import { Select } from '@/components/Select/Select'
+import React, { MouseEvent } from 'react'
+import { ArrowRight, Check } from 'lucide-react'
+import { ChromeExtensionSection, Navigation } from '@/components'
+import { Footer } from '@/components/Footer/Footer'
+import Link from 'next/link'
 
-export default function Home() {
-  const [leftText, setLeftText] = useState<string>('')
-  const [rightText, setRightText] = useState<string>('')
-  const [format, setFormat] = useState<FormatType>('text')
-  const [savedComparisons, setSavedComparisons] = useState<Comparison[]>([])
-  const [highlightedDiffs, setHighlightedDiffs] = useState<DiffHighlight>({
-    left: [],
-    right: [],
-  })
-
-  useEffect(() => {
-    const saved = localStorage.getItem('savedComparisons')
-    if (saved) {
-      setSavedComparisons(JSON.parse(saved))
+export default function LandingPage() {
+  const handleSmoothScroll = (
+    e: MouseEvent<HTMLAnchorElement>,
+    targetId: string,
+  ) => {
+    e.preventDefault()
+    const element = document.getElementById(targetId)
+    if (element) {
+      element.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      })
     }
-  }, [])
-
-  const findDifferences = () => {
-    const leftLines = leftText.split('\n')
-    const rightLines = rightText.split('\n')
-
-    const leftDiffs: number[] = []
-    const rightDiffs: number[] = []
-
-    const maxLines = Math.max(leftLines.length, rightLines.length)
-
-    for (let i = 0; i < maxLines; i++) {
-      if (leftLines[i] !== rightLines[i]) {
-        leftDiffs.push(i)
-        rightDiffs.push(i)
-      }
-    }
-
-    setHighlightedDiffs({ left: leftDiffs, right: rightDiffs })
   }
 
-  const saveComparison = () => {
-    const newComparison: Comparison = {
-      id: Date.now(),
-      leftText,
-      rightText,
-      format,
-      date: new Date().toISOString(),
-    }
-
-    const updatedComparisons = [...savedComparisons, newComparison]
-    setSavedComparisons(updatedComparisons)
-    localStorage.setItem('savedComparisons', JSON.stringify(updatedComparisons))
-  }
-
-  const loadComparison = (comparison: Comparison) => {
-    setLeftText(comparison.leftText)
-    setRightText(comparison.rightText)
-    setFormat(comparison.format)
-  }
-
-  const deleteComparison = (id: number) => {
-    const updatedComparisons = savedComparisons.filter((c) => c.id !== id)
-    setSavedComparisons(updatedComparisons)
-    localStorage.setItem('savedComparisons', JSON.stringify(updatedComparisons))
-  }
-  const formatOptions = [
-    { value: 'text', label: 'Plain Text' },
-    { value: 'json', label: 'JSON' },
-    { value: 'sql', label: 'SQL' },
+  const features = [
+    'Side-by-side comparison',
+    'Multiple format support (Text, JSON, SQL)',
+    'Real-time difference highlighting',
+    'Save and load comparisons',
+    'Easy-to-use interface',
+    'Keyboard shortcuts',
   ]
 
+  const usageFeatures = [
+    {
+      title: 'Smart Comparison',
+      description:
+        'Advanced algorithms to detect even the smallest differences',
+      color: 'from-[#003B5C] to-[#002B4C]',
+    },
+    {
+      title: 'Format Support',
+      description: 'Support for plain text, JSON, SQL, and more formats',
+      color: 'from-[#00A4BD] to-[#008299]',
+    },
+    {
+      title: 'Cloud Storage',
+      description: 'Save and access your comparisons from anywhere',
+      color: 'from-[#4CAF50] to-[#388E3C]',
+    },
+    {
+      title: 'Real-time Updates',
+      description: 'See differences as you type with instant highlighting',
+      color: 'from-[#003B5C] to-[#002B4C]',
+    },
+    {
+      title: 'Export Options',
+      description: 'Export your comparisons in various formats',
+      color: 'from-[#00A4BD] to-[#008299]',
+    },
+    {
+      title: 'Keyboard Shortcuts',
+      description: 'Boost your productivity with keyboard shortcuts',
+      color: 'from-[#4CAF50] to-[#388E3C]',
+    },
+  ]
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Header />
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        <div className="mb-8 flex justify-between items-center">
-          <Select
-            value={format}
-            onValueChange={setFormat}
-            options={formatOptions}
-            placeholder="Format"
-            className="w-32"
-          />
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
+      <Navigation />
 
-          <Button variant="outline" onClick={saveComparison}>
-            <Save className="w-4 h-4 mr-2" />
-            Save Comparison
-          </Button>
+      {/* Hero Section */}
+      <div className="relative overflow-hidden pt-16 pb-32">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="lg:grid lg:grid-cols-2 lg:gap-8">
+            {/* Left Column */}
+            <div className="mb-8 lg:mb-0">
+              <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl md:text-6xl">
+                Compare Text with
+                <span className="block text-[#00A4BD]">Precision and Ease</span>
+              </h1>
+              <p className="mt-6 text-xl text-gray-500">
+                A powerful text comparison tool that helps you identify
+                differences between documents, code, and text snippets quickly
+                and efficiently.
+              </p>
+              <div className="mt-8 flex space-x-4">
+                <Link href={'/app'}>
+                  <button className="flex items-center space-x-2 rounded-md bg-[#003B5C] px-6 py-3 text-white hover:bg-[#002B4C] transition-colors">
+                    <span>Try It Now</span>
+                    <ArrowRight className="h-5 w-5" />
+                  </button>{' '}
+                </Link>
+                <Link
+                  href={'#about'}
+                  onClick={(e) => handleSmoothScroll(e, 'about')}
+                >
+                  <button className="flex items-center space-x-2 rounded-md border border-gray-300 bg-white px-6 py-3 text-gray-700 hover:bg-gray-50 transition-colors">
+                    Learn More
+                  </button>{' '}
+                </Link>
+              </div>
+            </div>
+
+            {/* Right Column - Feature List */}
+            <div className="lg:pl-8">
+              <div className="rounded-xl bg-white p-8 shadow-lg">
+                <h3 className="text-xl font-semibold text-gray-900">
+                  Key Features
+                </h3>
+                <div className="mt-6 space-y-4">
+                  {features.map((feature, index) => (
+                    <div key={index} className="flex items-center space-x-3">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#00A4BD] bg-opacity-10">
+                        <Check className="h-5 w-5 text-[#00A4BD]" />
+                      </div>
+                      <span className="text-gray-700">{feature}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
 
-        <div className="grid grid-cols-2 gap-4 mb-8">
-          <textarea
-            className="w-full h-64 p-4 font-mono text-sm border rounded"
-            value={leftText}
-            onChange={(e) => setLeftText(e.target.value)}
-            placeholder="Enter first text..."
-          />
-          <textarea
-            className="w-full h-64 p-4 font-mono text-sm border rounded"
-            value={rightText}
-            onChange={(e) => setRightText(e.target.value)}
-            placeholder="Enter second text..."
-          />
+      <ChromeExtensionSection />
+      {/* Features Grid */}
+      <div className="bg-white py-24" id="about">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <h2 className="text-3xl font-bold tracking-tight text-gray-900">
+              Why Choose ParallelText?
+            </h2>
+            <p className="mt-4 text-lg text-gray-500">
+              The perfect tool for developers, writers, and anyone who needs to
+              compare text
+            </p>
+          </div>
+
+          <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+            {usageFeatures.map((feature, index) => (
+              <div
+                key={index}
+                className="relative rounded-xl bg-white p-6 shadow-lg"
+              >
+                <div
+                  className={`absolute top-0 left-0 h-2 w-full rounded-t-xl bg-gradient-to-r ${feature.color}`}
+                />
+                <h3 className="mt-4 text-xl font-semibold text-gray-900">
+                  {feature.title}
+                </h3>
+                <p className="mt-2 text-gray-500">{feature.description}</p>
+              </div>
+            ))}
+          </div>
         </div>
+      </div>
 
-        <Button
-          className="w-full mt-4 bg-gradient-to-r from-primary-600 to-primary-500 
-             hover:from-primary-700 hover:to-primary-600 
-             text-white font-medium px-8 py-2 rounded-lg 
-             transform transition-all duration-200 
-             shadow-lg hover:shadow-xl 
-             border border-primary-400 
-             flex items-center justify-center gap-2 
-             text-lg focus:outline-none focus:ring-2 
-             focus:ring-primary-500 focus:ring-offset-2"
-          onClick={findDifferences}
-        >
-          <ArrowRightLeft className="w-5 h-5" />
-          Compare
-        </Button>
-
-        <DiffViewer
-          leftText={leftText}
-          rightText={rightText}
-          format={format}
-          highlightedDiffs={highlightedDiffs}
-        />
-
-        <div className="mt-8">
-          <ComparisonHistory
-            comparisons={savedComparisons}
-            onLoad={loadComparison}
-            onDelete={deleteComparison}
-          />
-        </div>
-      </main>
-
-      <footer className="border-t mt-16">
-        <div className="max-w-7xl mx-auto px-4 py-8">
-          <p className="text-center text-gray-500">
-            © {new Date().getFullYear()} TextDiff by Dante Lentsoe. All rights
-            reserved.
-          </p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   )
 }
