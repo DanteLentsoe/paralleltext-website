@@ -1,29 +1,48 @@
-import React, { FC } from 'react'
-import { FormatType } from '@/types'
+import React, { ChangeEvent, Dispatch, FC, SetStateAction } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '../Card'
+import { ArrowRightLeft, Save } from 'lucide-react'
+import { Button } from '../Button'
+import { isTextEmpty } from '@/utils/isTextEmpty'
+import { Select } from '../Select'
+import { DiffHighlight } from '@/types'
 
 type DiffViewerProps = {
   leftText: string
   rightText: string
-  format: FormatType
-  highlightedDiffs: {
-    left: number[]
-    right: number[]
-  }
+  format: string
+  highlightedDiffs: DiffHighlight
+  showValidation: boolean
+  saveComparison: () => void
+  handleLeftTextChange: (e: ChangeEvent<HTMLTextAreaElement>) => void
+  handleRightTextChange: (e: ChangeEvent<HTMLTextAreaElement>) => void
+  setFormat: Dispatch<SetStateAction<string>>
+  findDifferences: () => void
+  formatOptions: {
+    value: string
+    label: string
+  }[]
 }
 
 export const DiffViewer: FC<DiffViewerProps> = ({
   leftText,
   rightText,
   format,
+  handleLeftTextChange,
+  handleRightTextChange,
+  findDifferences,
+  formatOptions,
+  showValidation,
   highlightedDiffs,
+  setFormat,
+  saveComparison,
 }) => {
-  const formatText = (text: string, format: FormatType): string => {
+  const formatText = (text: string, format: string) => {
     try {
       switch (format) {
         case 'json':
           return JSON.stringify(JSON.parse(text), null, 2)
         case 'sql':
+          // Basic SQL formatting - could be enhanced
           return text
             .replace(/\s+/g, ' ')
             .replace(
@@ -41,105 +60,184 @@ export const DiffViewer: FC<DiffViewerProps> = ({
       return text
     }
   }
-
   return (
     <>
-      <Card className="bg-white shadow-lg rounded-xl overflow-hidden">
+      <Card className="mb-4 w-full">
         <CardHeader>
-          <CardTitle>Comparison Results</CardTitle>
-        </CardHeader>
-        <CardContent className="p-6">
-          <div className="grid grid-cols-2 gap-6">
-            {/* Left Panel */}
-            <div className="relative">
-              <div className="absolute top-0 left-0 p-2 bg-[#003B5C] text-white text-xs font-medium rounded-tr rounded-bl">
-                Original Text
-              </div>
-              <div className="border rounded-lg overflow-hidden bg-gray-50 shadow-inner">
-                <div className="p-4 space-y-1">
-                  {formatText(leftText, format)
-                    .split('\n')
-                    .map((line, idx) => (
-                      <div
-                        key={idx}
-                        className={`font-mono text-sm px-2 py-0.5 rounded ${
-                          highlightedDiffs.left.includes(idx)
-                            ? 'bg-red-100 text-red-800'
-                            : 'text-gray-700'
-                        }`}
-                      >
-                        {line || '\u00A0'}
-                      </div>
-                    ))}
-                </div>
-              </div>
-            </div>
+          <div className="mb-8 flex justify-between items-center px-4">
+            <Select
+              value={format}
+              onValueChange={setFormat}
+              options={formatOptions}
+              placeholder="Format"
+              className="w-32"
+            />
 
-            {/* Right Panel */}
-            <div className="relative">
-              <div className="absolute top-0 left-0 p-2 bg-[#00A4BD] text-white text-xs font-medium rounded-tr rounded-bl">
-                Compared Text
-              </div>
-              <div className="border rounded-lg overflow-hidden bg-gray-50 shadow-inner">
-                <div className="p-4 space-y-1">
-                  {formatText(rightText, format)
-                    .split('\n')
-                    .map((line, idx) => (
-                      <div
-                        key={idx}
-                        className={`font-mono text-sm px-2 py-0.5 rounded ${
-                          highlightedDiffs.right.includes(idx)
-                            ? 'bg-green-100 text-green-800'
-                            : 'text-gray-700'
-                        }`}
-                      >
-                        {line || '\u00A0'}
-                      </div>
-                    ))}
-                </div>
-              </div>
+            <Button variant="outline" onClick={saveComparison}>
+              <Save className="w-4 h-4 mr-2" />
+              Save Comparison
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <textarea
+                className={`w-full h-96 p-2 font-mono text-sm border rounded
+        ${
+          showValidation && isTextEmpty(leftText)
+            ? 'border-red-300'
+            : 'border-gray-300'
+        }
+        focus:outline-none focus:ring-2 
+        ${
+          showValidation && isTextEmpty(leftText)
+            ? 'focus:ring-red-500'
+            : 'focus:ring-primary-500'
+        }
+      `}
+                value={leftText}
+                onChange={handleLeftTextChange}
+                placeholder="Enter first text..."
+              />
+            </div>
+            <div>
+              <textarea
+                className={`w-full h-96 p-2 font-mono text-sm border rounded
+        ${
+          showValidation && isTextEmpty(rightText)
+            ? 'border-red-300'
+            : 'border-gray-300'
+        }
+        focus:outline-none focus:ring-2 
+        ${
+          showValidation && isTextEmpty(rightText)
+            ? 'focus:ring-red-500'
+            : 'focus:ring-primary-500'
+        }
+      `}
+                value={rightText}
+                onChange={handleRightTextChange}
+                placeholder="Enter second text..."
+              />
             </div>
           </div>
+
+          {showValidation && (isTextEmpty(leftText) || isTextEmpty(rightText)) && (
+            <div className="flex items-center justify-center mt-4 mb-2">
+              <span className="text-sm text-red-500 flex items-center gap-2 bg-red-50 px-3 py-2 rounded-md">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-4 w-4"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                {isTextEmpty(leftText) && isTextEmpty(rightText)
+                  ? 'Both fields are empty'
+                  : isTextEmpty(leftText)
+                  ? 'Left field is empty'
+                  : 'Right field is empty'}
+              </span>
+            </div>
+          )}
+
+          <Button
+            onClick={findDifferences}
+            className="w-full mt-4 bg-gradient-to-r from-primary-600 to-primary-500 
+             hover:from-primary-700 hover:to-primary-600 
+             text-white font-medium px-8 py-2 rounded-lg 
+             transform transition-all duration-200 
+             shadow-lg hover:shadow-xl 
+             border border-primary-400 
+             flex items-center justify-center gap-2 
+             text-lg focus:outline-none focus:ring-2 
+             focus:ring-primary-500 focus:ring-offset-2"
+          >
+            <ArrowRightLeft className="w-5 h-5" />
+            Compare
+          </Button>
         </CardContent>
       </Card>
-      {/* <Card>
-        <div className="p-4">
-          <CardContent>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="border rounded p-4 bg-gray-50">
-                {formatText(leftText, format)
-                  .split('\n')
-                  .map((line, idx) => (
+
+      <Card className="mb-4">
+        <CardHeader>
+          <CardTitle className="px-4">Differences</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              {formatText(leftText, format)
+                .split('\n')
+                .map(
+                  (
+                    line:
+                      | string
+                      | number
+                      | boolean
+                      | React.ReactElement<
+                          unknown,
+                          string | React.JSXElementConstructor<unknown>
+                        >
+                      | Iterable<React.ReactNode>
+                      | React.ReactPortal
+                      | null
+                      | undefined,
+                    idx: React.Key | null | undefined,
+                  ) => (
                     <div
                       key={idx}
                       className={`font-mono text-sm ${
-                        highlightedDiffs.left.includes(idx) ? 'bg-red-100' : ''
+                        highlightedDiffs.left.includes(idx as never)
+                          ? 'bg-red-100'
+                          : ''
                       }`}
                     >
                       {line}
                     </div>
-                  ))}
-              </div>
-              <div className="border rounded p-4 bg-gray-50">
-                {formatText(rightText, format)
-                  .split('\n')
-                  .map((line, idx) => (
+                  ),
+                )}
+            </div>
+            <div>
+              {formatText(rightText, format)
+                .split('\n')
+                .map(
+                  (
+                    line:
+                      | string
+                      | number
+                      | boolean
+                      | React.ReactElement<
+                          unknown,
+                          string | React.JSXElementConstructor<unknown>
+                        >
+                      | Iterable<React.ReactNode>
+                      | React.ReactPortal
+                      | null
+                      | undefined,
+                    idx: React.Key | null | undefined,
+                  ) => (
                     <div
                       key={idx}
                       className={`font-mono text-sm ${
-                        highlightedDiffs.right.includes(idx)
+                        highlightedDiffs.right.includes(idx as never)
                           ? 'bg-green-100'
                           : ''
                       }`}
                     >
                       {line}
                     </div>
-                  ))}
-              </div>
+                  ),
+                )}
             </div>
-          </CardContent>
-        </div>
-      </Card> */}
+          </div>
+        </CardContent>
+      </Card>
     </>
   )
 }
