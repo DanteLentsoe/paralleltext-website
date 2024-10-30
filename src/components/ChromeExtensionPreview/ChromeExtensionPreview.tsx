@@ -57,7 +57,7 @@ export const ChromeExtensionSection = () => {
               </p>
               <div className="mt-8 flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
                 <a
-                  href="https://chrome.google.com/webstore"
+                  href="https://chromewebstore.google.com/detail/paralleltext/kgfhpigpogacdhompdnobjfjdgiohkoh"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center justify-center space-x-2 rounded-lg bg-white px-8 py-3 text-[#003B5C] hover:bg-gray-100 transition-colors"

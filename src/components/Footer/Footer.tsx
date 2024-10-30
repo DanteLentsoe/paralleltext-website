@@ -33,7 +33,8 @@ export const Footer: FC<FooterProps> = () => {
     },
     {
       title: 'Chrome Extension',
-      href: 'https://chrome.google.com/webstore',
+      href:
+        'https://chromewebstore.google.com/detail/paralleltext/kgfhpigpogacdhompdnobjfjdgiohkoh',
     },
   ]
 

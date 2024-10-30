@@ -16,7 +16,7 @@ export const Navigation = () => {
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-4">
             <Link
-              href="https://chrome.google.com/webstore"
+              href="https://chromewebstore.google.com/detail/paralleltext/kgfhpigpogacdhompdnobjfjdgiohkoh"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -67,7 +67,7 @@ export const Navigation = () => {
         <div className="md:hidden">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 border-t">
             <a
-              href="https://chrome.google.com/webstore"
+              href="https://chromewebstore.google.com/detail/paralleltext/kgfhpigpogacdhompdnobjfjdgiohkoh"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium text-white bg-[#00A4BD] hover:bg-[#008299] transition-colors"
